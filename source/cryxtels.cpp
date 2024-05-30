@@ -281,8 +281,8 @@ int main(int argc, char** argv)
  * false to end the introduction
  */
 bool intro_loop() {
-    static const int FOTTY_VIEWPORT_LOWER = HEIGHT*65/200;
-    static const int FOTTY_VIEWPORT_UPPER = HEIGHT*135/200;
+    static const int FOTTY_VIEWPORT_UPPER = HEIGHT*65/200;
+    static const int FOTTY_VIEWPORT_LOWER = HEIGHT*135/200;
 
     //if (!sbp_stat) play (0);
     u32 sync = SDL_GetTicks(); //clock();
@@ -312,8 +312,8 @@ bool intro_loop() {
 
     // rotate camera and approach text
     if (beta<360) {
-        cam_y += 25;
-        beta += 2;
+        cam_y += 25 * 180;  // skipping to the good part for debug purposes
+        beta += 360;
         darken_once();
     }
     // once the text is up close:
@@ -326,21 +326,26 @@ bool intro_loop() {
         cam_y -= 140;
         beta = tmp;
 
-        u16 current_frame = (SDL_GetTicks()/INTRO_TICKS_PER_FRAME) % WIDTH;
+        u16 time = (SDL_GetTicks()/INTRO_TICKS_PER_FRAME) & 0xFFFF; // % WIDTH;
         u32 cx = WIDTH*50;
+        u32 xcoord, ycoord, i;
         do {
-            if (current_frame < WIDTH*HEIGHT) {
+            if (time < 320*200) {
+                // coordinate conversion from old resolution
+                xcoord = (time%320)/320.0 * WIDTH + 0.5;    // adding 0.5 to compensate for truncation
+                ycoord = (time/320)/200.0 * HEIGHT + 0.5;
+                i = ycoord*WIDTH + xcoord;
                 // pixel value outside fottifoh row range
-                if (current_frame < WIDTH*FOTTY_VIEWPORT_LOWER + 4 ||
-                    current_frame >= WIDTH*FOTTY_VIEWPORT_UPPER + 4)
+                if (i < WIDTH*FOTTY_VIEWPORT_UPPER + 4 ||
+                    i >= WIDTH*FOTTY_VIEWPORT_LOWER + 4)
                 {
-                    video_buffer[current_frame] >>= 1;
+                    video_buffer[i] >>= 1;
                 }
             }
             if (cx >= WIDTH*50/2) {
-                current_frame += WIDTH + 1;
+                time +=  320 + 1;
             } else {
-                current_frame += WIDTH - 1;
+                time += 320 - 1;
             }
         } while (--cx > 0);
 
