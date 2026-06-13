@@ -53,6 +53,7 @@ static u32 width;
 static u32 height;
 static int ticks_per_second;
 static int ticks_per_frame;
+static int max_rotation;
 
 /// initialize configuration variables
 static void read_config(void) {
@@ -65,6 +66,12 @@ static void read_config(void) {
     objects = config.cosm_objects;
 
     audioEnabled = config.audio_enabled;
+
+    max_rotation = std::max(1, (int) (5 * config.ship_rotation_speed));
+}
+
+i16 clamp(i16 v, i16 low, i16 high) {
+    return std::min(high, std::max(low, v));
 }
 
 /// initialize some parts of cryxtels
@@ -742,13 +749,9 @@ bool main_loop() {
         // Non pi cos facile: ora c' lo SPIN.
         if (fid||lead||orig) {
             v_alpha = alpha90 - alpha;
-            if (v_alpha>5) v_alpha = 5;
-            if (v_alpha<-5) v_alpha = -5;
-            alpha += v_alpha;
+            alpha += clamp(v_alpha, -max_rotation, max_rotation);
             v_beta = beta90 - beta;
-            if (v_beta>5) v_beta = 5;
-            if (v_beta<-5) v_beta = -5;
-            beta += v_beta;
+            beta += clamp(v_beta, -max_rotation, max_rotation);
             if (alpha==alpha90 && beta==beta90) {
                 m = comera_m;
                 mx = beta * 5;
