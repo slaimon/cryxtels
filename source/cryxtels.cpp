@@ -53,6 +53,7 @@ static u32 width;
 static u32 height;
 static int ticks_per_second;
 static int ticks_per_frame;
+static int invert_y;
 
 /// initialize configuration variables
 static void read_config(void) {
@@ -60,6 +61,7 @@ static void read_config(void) {
     height = config.render_height;
     ticks_per_second = config.ticks_per_second;
     ticks_per_frame = config.ticks_per_frame;
+    invert_y = config.invert_y ? 1 : -1;
 
     pixels = config.cosm_pixels;
     objects = config.cosm_objects;
@@ -357,6 +359,7 @@ bool main_loop() {
             mpul = 0;
             mouse_input ();
 
+            mdlty *= invert_y;
             if (m && grab_mouse) {
                 mx += mdltx;
                 my += mdlty;
