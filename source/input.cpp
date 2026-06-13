@@ -155,8 +155,14 @@ float mdltx = 0, mdlty = 0;
 int mx = 0, my = 0, mpul = 0;
 
 void mouse_input() {
+    static const int invert_y = get_config().invert_y ? 1 : -1;
+    static const float sensitivity = get_config().mouse_sensitivity;
+
     // mouse delta is saved in mdltx and mdlty.
     auto r = SDL_GetRelativeMouseState(&mdltx, &mdlty);
+
+    mdltx *= sensitivity;
+    mdlty *= invert_y * sensitivity;
 
     // Update mouse key presses
     auto lmb = (r & SDL_BUTTON_MASK(1)) ? 1 : 0;
