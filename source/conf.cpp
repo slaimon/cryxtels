@@ -53,6 +53,10 @@ Config load_config(const std::string& fpath) {
 
     config.audio_enabled = ini["audio"]["enabled"] | true;
 
+    config.invert_y = ini["controls"]["invert_y"] | true;
+    config.mouse_sensitivity = ini["controls"]["mouse_sensitivity"] | 1.0;
+    config.ship_rotation_speed = ini["controls"]["ship_rotation_speed"] | 1.0;
+
     return config;
 }
 

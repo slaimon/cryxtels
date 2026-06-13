@@ -58,6 +58,12 @@ typedef struct conf {
 
     bool audio_enabled;
 
+    // --- controls group ---
+
+    bool invert_y;
+    float mouse_sensitivity;
+    float ship_rotation_speed;
+
     /// TODO: auto-save functionality?
 } Config;
 
