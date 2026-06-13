@@ -17,6 +17,7 @@
 
 #include "fast3d.h"
 
+#include <SDL3/SDL_error.h>
 #include <cmath>
 #include <ctime>
 #include <iostream>
@@ -157,8 +158,13 @@ void snapshot (void)
     time_t now; std::time(&now);
     strftime(datetime, fmtlen, "%Y-%m-%d_%H%M%S", std::localtime(&now));
     sprintf(filename, "SNAP_%s.BMP", datetime);
-    
-    SDL_SaveBMP(p_surface_32, filename);
+
+    bool error = !SDL_SaveBMP(p_surface_32, filename);
+    if (error) {
+        std::cout << "Failed to take snapshot: " << SDL_GetError() << std::endl;
+    } else {
+        std::cout << "Saved snapshot as " << filename << "." << std::endl;
+    }
 }
 
 void Render (void)
