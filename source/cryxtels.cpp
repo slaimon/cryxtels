@@ -48,6 +48,7 @@
 #include <SDL3/SDL_mouse.h>
 #include "conf.h"
 
+static const Config& config = get_config();
 static u32 width;
 static u32 height;
 static int ticks_per_second;
@@ -55,8 +56,6 @@ static int ticks_per_frame;
 
 /// initialize configuration variables
 static void read_config(void) {
-    const Config& config = get_config();
-    
     width = config.render_width;
     height = config.render_height;
     ticks_per_second = config.ticks_per_second;
