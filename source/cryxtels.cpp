@@ -815,40 +815,19 @@ bool main_loop() {
                 strcat (dist, ".ATM");
                 FILE* file = std::fopen(dist, "rb");
                 if (file) {
-                    // TODO: do the following calculations take the original resolution for granted?
-                    // does changing the resolution also change the behaviour of the following code?
                     // -- draw operation begin
-                    auto ax = 360u;
-                    ax -= beta;
-                    auto dx = 32u;
-                    ax = ax * dx; // 360*32
-                    dx = 0;
-                    auto cx = 36u;
-                    ax = ax / cx; // 360*32/36 = 320
-                    ax <<= 2; // 320 * 4 = 1280
-                    dx = 0;
-                    cx = width;
-                    auto si = ax % cx; // si = 1280 % width
-                    ax = alpha;
-                    cx = 360;
-                    dx = 0;
-                    ax = ax % cx; // alpha % 360
-                    dx = 3;
-                    ax = ax * dx; // (alpha % 360) * 3
-                    dx = 0;
-                    cx = width;
-                    ax = ax * cx; // ax = (alpha % 360) * 3 * width
-                    cx = ax >> 16; // cx = ax >> 16
-                    dx = ax;
-                    dx += si;
+                    u32 a1 = (((360 - beta) * 32) / 36) * 4;
+                    u32 a2 = 3 * width * (alpha % 360);
+                    u32 dx = a1 % width + a2;
+                    
                     std::fseek(file, dx, SEEK_SET);
                     auto p_data = &video_buffer[0];
-                    si = 8;
-                    do {
-                        cx = width*height / 8;
-                        std::fread(p_data, 1, cx, file);
-                        p_data += width*height / 8;
-                    } while (--si != 0);
+
+                    static u32 block_length = width*height / 8;
+                    for (int i = 0; i < 8; i++) {
+                        std::fread(p_data, 1, block_length, file);
+                        p_data += block_length;
+                    }
                     std::fclose (file);
                     // -- draw operation end
 
