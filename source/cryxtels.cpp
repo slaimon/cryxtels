@@ -824,10 +824,7 @@ bool main_loop() {
                     auto p_data = &video_buffer[0];
 
                     static u32 block_length = width*height / 8;
-                    for (int i = 0; i < 8; i++) {
-                        std::fread(p_data, 1, block_length, file);
-                        p_data += block_length;
-                    }
+                    std::fread(p_data, 8, block_length, file);
                     std::fclose (file);
                     // -- draw operation end
 
