@@ -821,33 +821,29 @@ bool main_loop() {
                     u32 dx = a1 % width + a2;
                     
                     std::fseek(file, dx, SEEK_SET);
-                    auto p_data = &video_buffer[0];
+                    std::fread(&video_buffer[0], 8, width*height / 8, file);
 
-                    static u32 block_length = width*height / 8;
-                    std::fread(p_data, 8, block_length, file);
                     std::fclose (file);
                     // -- draw operation end
 
                     if (d>500) {
-                        a = (d - 500) / 4;
+                        int a = (d - 500) / 4;
 
                         // -- draw operation begin
-                        auto si = &video_buffer[0];
-                        unsigned int cx = width*height;
-                        do
-                        {
-                            if (*si < (a&0xFF)) {
-                                *si -= a&0xFF;
-                                *si = (a>>8)&0xFF;
+                        auto ptr = &video_buffer[0];
+                        for (int i = 0; i < width*height; i++) {
+                            if (*ptr < (a&0xFF)) {
+                                *ptr -= a&0xFF;
+                                *ptr = (a>>8)&0xFF;
                             }
-                            else *si -= a&0xFF;
-                            si++;
-                        } while (--cx != 0);
-                        // -- draw operation end
+                            else *ptr -= a&0xFF;
+                            ptr++;
                         }
-                    } else {
-                        pclear (&video_buffer[0], 0);
+                        // -- draw operation end
                     }
+                } else {
+                    pclear (&video_buffer[0], 0);
+                }
             }
             else {
                 pclear (&video_buffer[0], 0);
