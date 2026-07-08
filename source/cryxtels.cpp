@@ -83,6 +83,18 @@ inline i16 angle_between(i16 target, i16 current) {
     return angle(target - current + 180) - 180;
 }
 
+inline bool spin_in_progress(void) {
+    return fid || lead || orig;
+}
+
+inline void spin_reset(void) {
+    fid = lead = orig = false;
+}
+
+inline void restart_mouse_movement(void) {
+    SDL_GetRelativeMouseState(&mdltx, &mdlty);
+}
+
 /// initialize some parts of cryxtels
 inline void init_start();
 
@@ -287,8 +299,7 @@ int main(int argc, char** argv)
         SDL_SetWindowRelativeMouseMode(p_window, true);
     }
 
-    // discard relativa mouse movements up to now
-    SDL_GetRelativeMouseState(&mdltx, &mdlty);
+    restart_mouse_movement();
 
     // Ciclo principale.
     bool running = true;
@@ -570,9 +581,7 @@ bool main_loop() {
                         my = alpha * 5;
                         if (grab_mouse) {
                             SDL_SetWindowRelativeMouseMode(p_window, static_cast<bool>(m));
-
-                            // fetch mouse delta to discard past movement
-                            SDL_GetRelativeMouseState(&mdltx, &mdlty);
+                            restart_mouse_movement();
                         }
                         break;
                     case SDLK_ESCAPE:
@@ -755,7 +764,7 @@ bool main_loop() {
         }
 
         // Spin in progress
-        if (fid||lead||orig) {
+        if (spin_in_progress()) {
             v_alpha = angle_between(alpha90, alpha);
             v_alpha = clamp(v_alpha, -max_rotation, max_rotation);
             alpha = angle(alpha + v_alpha);
@@ -766,16 +775,13 @@ bool main_loop() {
                 m = comera_m;
                 mx = beta * 5;
                 my = alpha * 5;
-                // fetch mouse delta to discard movement made during rotation
-                SDL_GetRelativeMouseState(&mdltx, &mdlty);
+                restart_mouse_movement();
                 if (orig && carried_pixel>-1) {
                     carried_pixel--;
                     if (carried_pixel < 0) carried_pixel = existent_pixeltypes - 1;
                     pixeltype[pixels-1] = carried_pixel;
                 }
-                fid = 0;
-                lead = 0;
-                orig = 0;
+                spin_reset();
                 play (TARGET);
             }
             v_alpha = 0;
@@ -1830,32 +1836,32 @@ void find_alphabeta()
 
 void fid_on ()
 {
-    if (EVA_in_progress||trackframe||fid||lead||orig) return;
+    if (EVA_in_progress || trackframe || spin_in_progress()) return;
     rx =   tsin[beta] * tcos[alpha];
     rz = - tcos[beta] * tcos[alpha];
     ry = - tsin[alpha];
     find_alphabeta ();
-    fid = 1;
+    fid = true;
 }
 
 void lead_on ()
 {
-    if (EVA_in_progress||trackframe||fid||lead||orig) return;
+    if (EVA_in_progress || trackframe || spin_in_progress()) return;
     rx = spd_x;
     ry = spd_y;
     rz = spd_z;
     find_alphabeta ();
-    lead = 1;
+    lead = true;
 }
 
 void orig_on ()
 {
-    if (EVA_in_progress||trackframe||fid||lead||orig) return;
+    if (EVA_in_progress || trackframe || spin_in_progress()) return;
     rx = -cam_x;
     ry = -cam_y;
     rz = -cam_z;
     find_alphabeta ();
-    orig = 1;
+    orig = true;
 }
 
 void dock_effects ()
