@@ -70,27 +70,35 @@ static void read_config(void) {
     max_rotation = std::max(1, (int) (5 * config.ship_rotation_speed));
 }
 
+/// Limit the value v between a min and max value. In other words,
+/// return low if v < low, v if low < v < high, and high if high < v.
 i16 clamp(i16 v, i16 low, i16 high) {
     return std::min(high, std::max(low, v));
 }
 
+/// Interpret x as an angle in degrees, and wrap its value to the interval [0,359].
 inline i16 angle(i16 x) {
     i16 y = x % 360;
     return (y < 0) ? y + 360 : y;
 }
 
+/// Find the angular distance between a target heading and the current heading.
+/// E.g. the angle between a = 10° and b = 350° is 20°.
 inline i16 angle_between(i16 target, i16 current) {
     return angle(target - current + 180) - 180;
 }
 
+/// Returns true iff the ship is currently in a spin state 
 inline bool spin_in_progress(void) {
     return fid || lead || orig;
 }
 
+/// Reset all flags relating to spin
 inline void spin_reset(void) {
     fid = lead = orig = false;
 }
 
+/// Flush the accumulated mouse movement, restarting input gathering from the current mouse position
 inline void restart_mouse_movement(void) {
     SDL_GetRelativeMouseState(&mdltx, &mdlty);
 }
