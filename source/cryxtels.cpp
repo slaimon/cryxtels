@@ -754,8 +754,7 @@ bool main_loop() {
             reset_trackframe = trackframe;
         }
 
-        // FID (freno inerziale diamagnetico).
-        // Non pi cos facile: ora c' lo SPIN.
+        // Spin in progress
         if (fid||lead||orig) {
             v_alpha = angle_between(alpha90, alpha);
             v_alpha = clamp(v_alpha, -max_rotation, max_rotation);
@@ -763,13 +762,15 @@ bool main_loop() {
             v_beta = angle_between(beta90, beta);
             v_beta = clamp(v_beta, -max_rotation, max_rotation);
             beta = angle(beta + v_beta);
-            if (alpha==alpha90 && beta==beta90) {
+            if (alpha==alpha90 && beta==beta90) { // spin target reached
                 m = comera_m;
                 mx = beta * 5;
                 my = alpha * 5;
+                // fetch mouse delta to discard movement made during rotation
+                SDL_GetRelativeMouseState(&mdltx, &mdlty);
                 if (orig && carried_pixel>-1) {
                     carried_pixel--;
-                    if (carried_pixel<0) carried_pixel = existent_pixeltypes - 1;
+                    if (carried_pixel < 0) carried_pixel = existent_pixeltypes - 1;
                     pixeltype[pixels-1] = carried_pixel;
                 }
                 fid = 0;
