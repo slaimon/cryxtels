@@ -771,7 +771,6 @@ bool main_loop() {
             reset_trackframe = trackframe;
         }
 
-        // Spin in progress
         if (spin_in_progress()) {
             v_alpha = angle_between(alpha90, alpha);
             v_alpha = clamp(v_alpha, -max_rotation, max_rotation);
